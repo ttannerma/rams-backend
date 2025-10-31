@@ -1,44 +1,41 @@
 import express from "express";
 import db from "../../database/connect.js";
 
-import { ObjectId } from "mongodb";
-
 const router = express.Router();
 
+/**
+ * Handles GET requests to retrieve all reservations.
+ */
 router.get("/", async (req, res) => {
-  const collection = await db.collection("records").find({
-    type: "RESERVATION"
-  }).toArray();
+  const collection = await db
+    .collection("records")
+    .find({
+      type: "RESERVATION",
+    })
+    .toArray();
   res.send(collection).status(200);
 });
 
-
-router.get("/:id", async (req, res) => {
-  const collection = await db.collection("records")
-  const query = { _id: new ObjectId(req.params.id) };
-  const record = await collection.findOne(query);
-
-  if(!result) {
-    res.send("Not Found").status(404);
-  } else {
-    res.send(record).status(200);
-  }
-});
-
+/**
+ * Handles POST requests to create a new reservation.
+ */
 router.post("/", async (req, res) => {
   const collection = await db.collection("records");
   const reservation = req.body;
 
-  const newReservation = { 
+  const newReservation = {
     ...reservation,
     type: "RESERVATION",
-    id: crypto.randomUUID()
+    id: crypto.randomUUID(), // generate a unique reservation ID
   };
 
   const result = await collection.insertOne(newReservation);
   res.send(result).status(201);
 });
 
+/**
+ * Handles DELETE requests to remove a reservation by id.
+ */
 router.delete("/:id", async (req, res) => {
   try {
     const query = { id: req.params.id, type: "RESERVATION" };
